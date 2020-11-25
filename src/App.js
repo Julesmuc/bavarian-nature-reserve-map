@@ -1,9 +1,9 @@
-import React, { useState, useEffect,useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import './App.css';
 import DeckGL from '@deck.gl/react';
-import {StaticMap} from 'react-map-gl';
+import { StaticMap } from 'react-map-gl';
 import { GeoJsonLayer } from '@deck.gl/layers';
-import {FlyToInterpolator} from '@deck.gl/core';
+import { FlyToInterpolator } from '@deck.gl/core';
 import { apitoken } from './apitoken'
 
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
@@ -17,11 +17,16 @@ const INITIAL_VIEW_STATE = {
   bearing: 0
 };
 
+function App() {
+  const [getLayer, setLayer] = useState(null);
+  const [viewport, setViewport] = useState(INITIAL_VIEW_STATE);
+  const [infoText, setInfoText] = useState("");
+  const [showText, setShowText] = useState(false);
 
-const LayerList = ({ layers, viewport }) => {
+const LayerList = () => {
 
   const flyToReserve = (layer) => {
-    viewport({
+    setViewport({
       longitude: layer.geometry.coordinates[0][0][0][0],
       latitude: layer.geometry.coordinates[0][0][0][1],
       zoom: 14,
@@ -30,12 +35,18 @@ const LayerList = ({ layers, viewport }) => {
       transitionDuration: 2000,
       transitionInterpolator: new FlyToInterpolator()
     })
-    console.log(`I AM: ${layer.properties.name}`);
+    setShowText(true);
+    setInfoText(
+      <React.Fragment>
+<div>{layer.properties.name}</div>
+<div>{layer.properties.area_ha} ha</div>
+      </React.Fragment>
+    );
   }
 
   const getNatureReserveList = () => {
-    if (layers) {
-      return layers.features.map((layer, id) => {
+    if (getLayer) {
+      return getLayer.features.map((layer, id) => {
         return (
           <div onClick={_ => flyToReserve(layer)} key={"layer" + id} className="listingText">{layer.properties.name} </div>
         );
@@ -47,7 +58,7 @@ const LayerList = ({ layers, viewport }) => {
     }
   }
   return (
-    <div className='sidebar'>
+    <div id="sidebar" className='sidebar'>
       <div className='heading'>
         <h1>Naturschutzgebiete in Bayern</h1>
       </div>
@@ -58,11 +69,6 @@ const LayerList = ({ layers, viewport }) => {
   )
 }
 
-function App() {
-
-  const [getLayer, setLayer] = useState(null);
-  const [viewport, setViewport] = useState(INITIAL_VIEW_STATE);
- 
   const goToMunich = useCallback(() => {
     setViewport({
       longitude: 11.5820,
@@ -75,12 +81,26 @@ function App() {
     })
   }, []);
 
+  const goToLocation = () => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      setViewport({
+        longitude: position.coords.longitude,
+        latitude: position.coords.latitude,
+        zoom: 14,
+        pitch: 0,
+        bearing: 0,
+        transitionDuration: 2000,
+        transitionInterpolator: new FlyToInterpolator()
+      })
+
+  });
+}
+
   async function getNatureLayer() {
     const response = await fetch(DATA_URL);
     const json = await response.json();
     setLayer(json);
   }
-
   useEffect(() => {
     getNatureLayer();
   }, []);
@@ -101,14 +121,21 @@ function App() {
         <DeckGL
           initialViewState={viewport}
           controller={true}
-          layers={layers}>
+          layers={layers}
+        >
+
           <StaticMap
-            apitoken={apitoken} reuseMap preventStyleDiffing={true} mapStyle={MAP_STYLE}>
+            apitoken={apitoken} onClick={()=> setShowText(false)} reuseMap preventStyleDiffing={true} mapStyle={MAP_STYLE}>
           </StaticMap>
         </DeckGL>
-        <button className="floatButton" onClick={goToMunich}>München</button>
+        <button className="floatButton" onClick={goToLocation}>Dein Standort</button>
+        <button className="floatButton left" onClick={goToMunich}>München</button>
       </div>
-      <LayerList layers={getLayer} viewport={setViewport}></LayerList>
+      <LayerList layers={getLayer} viewport={setViewport} setInfoText={setInfoText} setShowText={setShowText}  ></LayerList>
+      {showText &&
+        <div id="nature-reserve-information" className="nature-reserve-information">
+          {infoText}
+      </div>}
     </React.Fragment>
   );
 }

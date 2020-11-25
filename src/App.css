@@ -1,28 +1,57 @@
+:root {
+  --main-bg-color: #12664F;
+}
 body {
   background: #404040;
-  color: #f8f8f8;
   font: 500 20px/26px 'Helvetica Neue', Helvetica, Arial, Sans-serif;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
 }
 .sidebar {
-  background-color: #12664F;
+  color: white;
+  width: 33.3333%;
+  position: absolute;
+  background-color: var(--main-bg-color);
+  -webkit-box-shadow: 0px 1px 18px 15px rgba(18,102,79,0.4); 
+ box-shadow: 0px 1px 18px 15px rgba(18,102,79,0.4);
+  border-radius: 1rem;
+  top: 1vh;
+  left: 1vw;
+}
+.nature-reserve-information {
+  padding: 1rem;
+  background-color: white;
+  position: absolute;
+  -webkit-box-shadow: 0px 1px 18px 15px rgba(255, 255, 255, 0.4); 
+  box-shadow: 0px 1px 18px 15px rgba(255, 255, 255, 0.4);
+  border-radius: 1rem;
+  top: 1vh;
+  right: 1vw;
+  text-align: center;
 }
 
-.map {
-  border-right: 1px solid black;
-  position: absolute;
-  right: 33.3333%;
-  width: 66.6666%;
-  top: 0;
-  bottom: 0;
+::-webkit-scrollbar {
+  width: 1rem;
+  border-left: 0;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 1rem;
 }
+
+::-webkit-scrollbar-thumb {
+  background: #c90000;
+  border-radius: 3rem;
+}
+
+::-webkit-scrollbar-track {
+  background: none;
+}
+
 h1 {
   text-align: right;
   font-size: 22px;
   margin: 0;
-  font-weight: 400;
+  font-weight: 900;
   line-height: 20px;
   padding: 20px 2px;
 }
@@ -31,10 +60,19 @@ h1 {
   margin-right: 4rem;
 }
 .floatButton {
+  border-radius: 1rem;
+  background-color: var(--main-bg-color);
+  color: white;
   position: fixed;
-    right: 23px;
-    bottom: 23px;
-    padding-top: 15px;
+  right: 10vh;
+  padding: 0.5em;
+  bottom: 2vh;
+    margin-bottom: 0;
+    z-index: 997;
+}
+.left {
+    right: 20vh;
+    bottom: 2vh;
     margin-bottom: 0;
     z-index: 997;
 }
@@ -43,6 +81,16 @@ h1 {
   font-size: 1rem;
   text-align: right;
   margin-right: 4rem;
+  transition: transform .2s;
+  cursor: pointer;
+}
+.listingText:hover {
+  transform: scale(1.1);
+}
+
+.listings  {
+  overflow: auto;
+  max-height: 40rem;
 }
 
 a {
